@@ -37,6 +37,7 @@ int main(int argc,char **argv)
 	{
 		printf("Input your words:");
 		scanf("%s",&sendline);
+		printf("content:%s",sendline);
 		
 		send(sockfd,sendline,strlen(sendline),0);
 	

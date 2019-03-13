@@ -63,8 +63,9 @@ int main(int argc,char **argv)
 			
 			printf("recv data is:%s\n",recvline);
 			
-			printf("Input your words:");
-			scanf("%s",sendline);
+			// printf("Input your words:");
+			// scanf("%s",sendline);
+			char *sendline = "server has recv data from client";
 			send(cli_sockfd,sendline,strlen(sendline),0);
 		}
 		close(cli_sockfd);
