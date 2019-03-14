@@ -11,7 +11,8 @@
 
 #define MYPORT  8887
 #define QUEUE   20
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 280
+
 
 int main()
 {
@@ -29,27 +30,41 @@ int main()
     {
         perror("bind");
         exit(1);
+    }else
+    {
+        printf("bind successfully\n");
     }
+    
 
     ///listen，成功返回0，出错返回-1
     if(listen(server_sockfd,QUEUE) == -1)
     {
         perror("listen");
         exit(1);
+    }else
+    {
+        printf("listen port %d\n",MYPORT);
     }
+    
 
     ///客户端套接字
     char buffer[BUFFER_SIZE];
     struct sockaddr_in client_addr;
     socklen_t length = sizeof(client_addr);
 
+    printf("waiting from client...\n");
     ///成功返回非负描述字，出错返回-1
     int conn = accept(server_sockfd, (struct sockaddr*)&client_addr, &length);
     if(conn<0)
     {
         perror("connect");
         exit(1);
+    }else
+    {
+        /* code */
+        printf("accept client sucessfully\n");
     }
+    
 
     while(1)
     {

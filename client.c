@@ -10,7 +10,8 @@
 #include <sys/shm.h>
 
 #define MYPORT  8887
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 280
+#define ADDRESS "127.0.0.1"
 
 int main()
 {
@@ -20,9 +21,10 @@ int main()
     ///定义sockaddr_in
     struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
+    
+	servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(MYPORT);  ///服务器端口
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");  ///服务器ip
+    servaddr.sin_addr.s_addr = inet_addr(ADDRESS);  ///服务器ip
 
     ///连接服务器，成功返回0，错误返回-1
     if (connect(sock_cli, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
@@ -33,16 +35,19 @@ int main()
 
     char sendbuf[BUFFER_SIZE];
     char recvbuf[BUFFER_SIZE];
+	puts("please input");
     while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
     {
         send(sock_cli, sendbuf, strlen(sendbuf),0); ///发送
         if(strcmp(sendbuf,"exit\n")==0)
             break;
         recv(sock_cli, recvbuf, sizeof(recvbuf),0); ///接收
-        fputs(recvbuf, stdout);
+        printf("data from server:");
+		fputs(recvbuf, stdout);
 
         memset(sendbuf, 0, sizeof(sendbuf));
         memset(recvbuf, 0, sizeof(recvbuf));
+		puts("please input");
     }
 
     close(sock_cli);
