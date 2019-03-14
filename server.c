@@ -1,77 +1,66 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<sys/socket.h>
-#include<sys/types.h>
-#include<unistd.h>
-#include<netinet/in.h>
-#include <errno.h>  
-#define PORT 6666
-int main(int argc,char **argv)
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+
+#define MYPORT  8887
+#define QUEUE   20
+#define BUFFER_SIZE 1024
+
+int main()
 {
-	int ser_sockfd,cli_sockfd;
-	int err,n;
-	int addlen;
-	struct sockaddr_in ser_addr;
-	struct sockaddr_in cli_addr;
-	char *recvline[500],sendline[500];
-	
-	ser_sockfd=socket(AF_INET,SOCK_STREAM,0);
-	if(ser_sockfd==-1)
-	{
-		printf("socket error:%s\n",strerror(errno));
-		return -1;
-	}
-	
-	bzero(&ser_addr,sizeof(ser_addr));
-	ser_addr.sin_family=AF_INET;
-	ser_addr.sin_addr.s_addr=htonl(INADDR_ANY);
-	ser_addr.sin_port=htons(PORT);
-	err=bind(ser_sockfd,(struct sockaddr *)&ser_addr,sizeof(ser_addr));
-	if(err==-1)
-	{
-		printf("bind error:%s\n",strerror(errno));
-		return -1;
-	}
-	
-	err=listen(ser_sockfd,5);
-	if(err==-1)
-	{
-		printf("listen error\n");
-		return -1;
-	}
-	
-	printf("listen the port %d\n",PORT);
-	
-	while(1)
-	{	
-		addlen=sizeof(struct sockaddr);
-		cli_sockfd=accept(ser_sockfd,(struct sockaddr *)&cli_addr,&addlen);
-		if(cli_sockfd==-1)
-		{
-			printf("accept error\n");
-		}
-		while(1)
-		{
-			printf("waiting for client...\n");
-			n=recv(cli_sockfd,recvline,1024,0);
-			if(n==-1)
-			{
-				printf("recv error\n");
-			}
-			recvline[n]='\0';
-			
-			printf("recv data is:%s\n",recvline);
-			
-			// printf("Input your words:");
-			// scanf("%s",sendline);
-			char *sendline = "server has recv data from client";
-			send(cli_sockfd,sendline,strlen(sendline),0);
-		}
-		close(cli_sockfd);
-	}
-	
-	close(ser_sockfd);
-	
-	return 0;
+    ///定义sockfd
+    int server_sockfd = socket(AF_INET,SOCK_STREAM, 0);
+
+    ///定义sockaddr_in
+    struct sockaddr_in server_sockaddr;
+    server_sockaddr.sin_family = AF_INET;
+    server_sockaddr.sin_port = htons(MYPORT);
+    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    ///bind，成功返回0，出错返回-1
+    if(bind(server_sockfd,(struct sockaddr *)&server_sockaddr,sizeof(server_sockaddr))==-1)
+    {
+        perror("bind");
+        exit(1);
+    }
+
+    ///listen，成功返回0，出错返回-1
+    if(listen(server_sockfd,QUEUE) == -1)
+    {
+        perror("listen");
+        exit(1);
+    }
+
+    ///客户端套接字
+    char buffer[BUFFER_SIZE];
+    struct sockaddr_in client_addr;
+    socklen_t length = sizeof(client_addr);
+
+    ///成功返回非负描述字，出错返回-1
+    int conn = accept(server_sockfd, (struct sockaddr*)&client_addr, &length);
+    if(conn<0)
+    {
+        perror("connect");
+        exit(1);
+    }
+
+    while(1)
+    {
+        memset(buffer,0,sizeof(buffer));
+        int len = recv(conn, buffer, sizeof(buffer),0);
+        if(strcmp(buffer,"exit\n")==0)
+            break;
+        fputs(buffer, stdout);
+        send(conn, buffer, len, 0);
+    }
+    close(conn);
+    close(server_sockfd);
+    return 0;
 }
