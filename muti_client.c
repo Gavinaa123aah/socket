@@ -47,9 +47,19 @@ int main()
 
     while(1)
     {
-        printf("Please input something you wanna say(input \"quit\" to quit):\n");
+        printf("Please input something you wanna say(input \"help\" to get help command):\n");
         gets(data_send);
         //scanf("%[^\n]",data_send);         //or you can also use this
+        if(strcmp(data_send,"help")==0)
+        {
+            printf("#exit command!\n");
+            printf("#Help (list Command)\n");     
+            printf("#ListU (list user in a server\n");
+            printf("#ListF  (list files in a server)\n");
+            printf("#TrfU ( transfert Upload file in a server)\n");
+            printf("#TrfD ( transfert Download file in a server\n");
+        }
+
         tempfd = write(sockfd,data_send,BUFFER_LENGTH);
         if(tempfd == -1)
         {
@@ -57,7 +67,8 @@ int main()
             exit(0);
         }
 
-        if(strcmp(data_send,"quit") == 0)  //quit,write the quit request and shutdown client
+        
+        if(strcmp(data_send,"exit") == 0)  //quit,write the quit request and shutdown client
         {
             break;
         }

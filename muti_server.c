@@ -104,12 +104,14 @@ static void Data_handle(void * sock_fd)
             fprintf(stderr,"read error!\n");
             break;
         }
-        if(strcmp(data_recv,"quit")==0)
+        if(strcmp(data_recv,"exit")==0)
         {
             printf("Quit command!\n");
             break;                           //Break the while loop.
         }
+      
         printf("read from client : %s\n",data_recv);
+
         if(write(fd,data_send,strlen(data_send)) == -1)
         {
             break;
