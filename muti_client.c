@@ -49,31 +49,52 @@ int main()
     {
         printf("Please input something you wanna say(input \"help\" to get help command):\n");
         gets(data_send);
-        //scanf("%[^\n]",data_send);         //or you can also use this
-        if(strcmp(data_send,"help")==0)
+        // tempfd = write(sockfd,data_send,BUFFER_LENGTH);
+        // if(tempfd == -1)
+        // {
+        //     fprintf(stderr,"write error\n");
+        //     exit(0);
+        // }
+
+        char *TrfU="TrfU";
+        char *TrfD="TrfD";
+        char *Exit="Exit";
+        char *ListU="ListU";
+        char *Help="Help";
+        if(strcmp(data_send,Help)==0)
         {
-            printf("#exit command!\n");
+            printf("#Exit (exit client command!)\n");
             printf("#Help (list Command)\n");     
             printf("#ListU (list user in a server\n");
-            printf("#ListF  (list files in a server)\n");
+            printf("#ListF (list files in a server)\n");
             printf("#TrfU ( transfert Upload file in a server)\n");
             printf("#TrfD ( transfert Download file in a server\n");
+            continue;
         }
-
-        tempfd = write(sockfd,data_send,BUFFER_LENGTH);
-        if(tempfd == -1)
-        {
-            fprintf(stderr,"write error\n");
-            exit(0);
-        }
-
-        
-        if(strcmp(data_send,"exit") == 0)  //quit,write the quit request and shutdown client
-        {
+        else if(strcmp(data_send,Exit) == 0)  //quit,write the quit request and shutdown client
+        {   
+            printf("client exit\n");
             break;
-        }
-        else
+        }else if (strstr(data_send,TrfU)!=NULL) {
+            /* code */
+            printf("Capture trfu \n");
+            continue;
+        }else if (strstr(data_send,ListU)!=NULL)
         {
+            /* code */
+            printf("Capture listU \n");
+            continue;
+        }else if (strstr(data_send,TrfD)!=NULL) {
+            printf("Capture trfD \n");
+            continue;
+        }else//receive data from server
+        {   
+            tempfd = write(sockfd,data_send,BUFFER_LENGTH);
+            if(tempfd == -1)
+            {
+                fprintf(stderr,"write error\n");
+                exit(0);
+            }
             tempfd = read(sockfd,data_recv,BUFFER_LENGTH);
             assert(tempfd != -1);
             printf("%s\n",data_recv);

@@ -77,7 +77,7 @@ int main ()
 			printf("[Server] Server has got connected from %s.\n", inet_ntoa(addr_remote.sin_addr));
 
 		/*Receive File from Client */
-		char* fr_name = "server_dir/receive.jpeg";
+		char* fr_name = "server_dir/receive.txt";
 		FILE *fr = fopen(fr_name, "a");
 		if(fr == NULL)
 			printf("File %s Cannot be opened file on server.\n", fr_name);
@@ -88,7 +88,7 @@ int main ()
 			//int success = 0;
 			//while(success == 0)
 			//{
-			    while(fr_block_sz = recv(nsockfd, revbuf, LENGTH, 0)) //could it be sockfd?
+			    while((fr_block_sz = recv(nsockfd, revbuf, LENGTH, 0)))//could it be sockfd?
 			    {
 			        if(fr_block_sz < 0)
 			        {
@@ -115,33 +115,33 @@ int main ()
 
 		/* Send File to Client */
 	    //if(!fork())
-	    {
-	        char* fs_name = "server_dir/output.txt";
-	        char sdbuf[LENGTH]; // Send buffer
-	        printf("[Server] Sending %s to the Client...", fs_name);
-	        FILE *fs = fopen(fs_name, "r");
-	        if(fs == NULL)
-	        {
-	            printf("ERROR: File %s not found on server.\n", fs_name);
-				exit(1);
-	        }
+	    // {
+	    //     char* fs_name = "server_dir/output.txt";
+	    //     char sdbuf[LENGTH]; // Send buffer
+	    //     printf("[Server] Sending %s to the Client...", fs_name);
+	    //     FILE *fs = fopen(fs_name, "r");
+	    //     if(fs == NULL)
+	    //     {
+	    //         printf("ERROR: File %s not found on server.\n", fs_name);
+		// 		exit(1);
+	    //     }
 
-	        bzero(sdbuf, LENGTH); 
-	        int fs_block_sz; 
-	        while((fs_block_sz = fread(sdbuf, sizeof(char), LENGTH, fs))>0)
-	        {
-	            if(send(nsockfd, sdbuf, fs_block_sz, 0) < 0)
-	            {
-	                printf("ERROR: Failed to send file %s.\n", fs_name);
-	                exit(1);
-	            }
-	            bzero(sdbuf, LENGTH);
-	        }
-	        printf("Ok sent to client!\n");
-	        success = 1;
-	        close(nsockfd);
-	        printf("[Server] Connection with Client closed. Server will wait now...\n");
-	        while(waitpid(-1, NULL, WNOHANG) > 0);
-	    }
+	    //     bzero(sdbuf, LENGTH); 
+	    //     int fs_block_sz; 
+	    //     while((fs_block_sz = fread(sdbuf, sizeof(char), LENGTH, fs))>0)
+	    //     {
+	    //         if(send(nsockfd, sdbuf, fs_block_sz, 0) < 0)
+	    //         {
+	    //             printf("ERROR: Failed to send file %s.\n", fs_name);
+	    //             exit(1);
+	    //         }
+	    //         bzero(sdbuf, LENGTH);
+	    //     }
+	    //     printf("Ok sent to client!\n");
+	    //     success = 1;
+	    //     close(nsockfd);
+	    //     printf("[Server] Connection with Client closed. Server will wait now...\n");
+	    //     while(waitpid(-1, NULL, WNOHANG) > 0);
+	    // }
 	}
 }

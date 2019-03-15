@@ -104,7 +104,7 @@ static void Data_handle(void * sock_fd)
             fprintf(stderr,"read error!\n");
             break;
         }
-        if(strcmp(data_recv,"exit")==0)
+        if(strcmp(data_recv,"Exit")==0)
         {
             printf("exit command!\n");
             break;                           //Break the while loop.
