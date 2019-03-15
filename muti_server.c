@@ -1,9 +1,3 @@
-/*
- * multi_thread_socket_server.c
- *
- *  Created on: Mar 14, 2014
- *      Author: nerohwang
- */
 #include<stdlib.h>
 #include<pthread.h>
 #include<sys/socket.h>
@@ -14,6 +8,7 @@
 #include<assert.h>          //Func :assert
 #include<string.h>          //Func :memset
 #include<unistd.h>          //Func :close,write,read
+#include <dirent.h>         
 #define SOCK_PORT 9988
 #define BUFFER_LENGTH 1024
 #define MAX_CONN_LIMIT 512     //MAX connection limit
@@ -108,12 +103,51 @@ static void Data_handle(void * sock_fd)
         {
             printf("exit command!\n");
             break;                           //Break the while loop.
+        }else if (strstr(data_recv,"TrfU")!=NULL)
+        {   
+            printf("upload file\n");
+            continue;
+            /* code */
+        }else if (strstr(data_recv,"TrfD")!=NULL)
+        {   
+            printf("download file\n");
+            continue;
+            /* code */
+        }else if (strstr(data_recv,"ListF")!=NULL)
+        {   
+            printf("list files name\n");
+            DIR *d;
+            struct dirent *dir;
+            d = opendir("server_dir");
+            char file_names[1000];
+            if (d)
+            {
+                while ((dir = readdir(d)) != NULL)
+                {
+                    strcat(file_names,dir->d_name);
+                    strcat(file_names,"\n");
+                }
+                closedir(d);
+                write(fd,file_names,strlen(file_names));
+            }
+            continue;
+            /* code */
+        }else if (strstr(data_recv,"ListU")!=NULL)
+        {   
+            printf("List Users\n");
+            continue;
+            /* code */
+        }else if (strstr(data_recv,"mys")!=NULL)//get usual string
+        {
+            /* code */
+            char *target = malloc(strlen(data_recv)-3);
+            strncpy(target, data_recv+3, strlen(data_recv)-3);
+            printf("read from client : %s\n",target);
         }
-      
-        printf("read from client : %s\n",data_recv);
 
         if(write(fd,data_send,strlen(data_send)) == -1)
         {
+            printf("server write error!!\n");
             break;
         }
     }

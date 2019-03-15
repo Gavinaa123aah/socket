@@ -1,9 +1,3 @@
-/*
- * socket_client.c
- *
- *  Created on: Mar 15, 2014
- *      Author: nerohwang
- */
 #include<stdlib.h>
 #include<sys/socket.h>
 #include<sys/types.h>       //pthread_t , pthread_attr_t and so on.
@@ -47,7 +41,7 @@ int main()
 
     while(1)
     {
-        printf("Please input something you wanna say(input \"help\" to get help command):\n");
+        printf("Please input something you wanna say(input \"Help\" to get help command):\n");
         gets(data_send);
         // tempfd = write(sockfd,data_send,BUFFER_LENGTH);
         // if(tempfd == -1)
@@ -60,6 +54,7 @@ int main()
         char *TrfD="TrfD";
         char *Exit="Exit";
         char *ListU="ListU";
+        char *ListF="ListF";
         char *Help="Help";
         if(strcmp(data_send,Help)==0)
         {
@@ -84,12 +79,32 @@ int main()
             /* code */
             printf("Capture listU \n");
             continue;
+        }else if (strstr(data_send,ListF)!=NULL)
+        {
+            /* code */
+            printf("List files in server: \n");
+            tempfd = write(sockfd,data_send,BUFFER_LENGTH);
+            if(tempfd == -1)
+            {
+                fprintf(stderr,"write error\n");
+                exit(0);
+            }
+            tempfd = read(sockfd,data_recv,BUFFER_LENGTH);
+            assert(tempfd != -1);
+            printf("%s\n",data_recv);
+            memset(data_send,0,BUFFER_LENGTH);
+            memset(data_recv,0,BUFFER_LENGTH);
+            continue;
         }else if (strstr(data_send,TrfD)!=NULL) {
             printf("Capture trfD \n");
             continue;
-        }else//receive data from server
-        {   
-            tempfd = write(sockfd,data_send,BUFFER_LENGTH);
+        }else//write&&receive data from server
+        {   char *mys = "mys";
+            char *target = malloc(strlen(mys) + strlen(data_send) + 1);
+            strcpy(target, mys);
+            strcat(target,data_send);
+            tempfd = write(sockfd,target,BUFFER_LENGTH);
+            // tempfd = write(sockfd,data_send,BUFFER_LENGTH);
             if(tempfd == -1)
             {
                 fprintf(stderr,"write error\n");
