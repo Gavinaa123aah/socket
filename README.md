@@ -1,4 +1,4 @@
-# socket
+# c language:implements socket based on TCP
 ## 1.create connection between client ann server
 ## 2.implements multi_clients to create connections between one server
 ## 3.implements transfer files between server and clients
