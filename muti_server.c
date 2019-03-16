@@ -8,7 +8,14 @@
 #include<assert.h>          //Func :assert
 #include<string.h>          //Func :memset
 #include<unistd.h>          //Func :close,write,read
-#include <dirent.h>         
+#include <dirent.h>   
+#include <signal.h>
+#include <ctype.h> 
+#include <unistd.h> 
+#include <errno.h>
+#include <sys/wait.h>
+#include <netdb.h>
+
 #define SOCK_PORT 9988
 #define BUFFER_LENGTH 1024
 #define MAX_CONN_LIMIT 512     //MAX connection limit
@@ -23,6 +30,7 @@ int main()
     struct sockaddr_in s_addr_in;
     struct sockaddr_in s_addr_client;
     int client_length;
+   
 
     sockfd_server = socket(AF_INET,SOCK_STREAM,0);  //ipv4,TCP
     assert(sockfd_server != -1);
@@ -80,6 +88,7 @@ static void Data_handle(void * sock_fd)
     int fd = *((int *)sock_fd);
     int i_recvBytes;
     char data_recv[BUFFER_LENGTH];
+    // char revbuf[BUFFER_LENGTH];//文件传输buffer
     const char * data_send = "Server has received your request!\n";
 
     while(1)
@@ -104,8 +113,45 @@ static void Data_handle(void * sock_fd)
             printf("exit command!\n");
             break;                           //Break the while loop.
         }else if (strstr(data_recv,"TrfU")!=NULL)
-        {   
-            printf("upload file\n");
+        {   char *prepare_recv = "prepare_recv";
+            printf("enter TrfU\n");
+            char *file_name_u = malloc(strlen(data_recv)-4);
+            strncpy(file_name_u, data_recv+4, strlen(data_recv)-4);//截取client_dir/(filename)
+            char *file_name_server = malloc(strlen(file_name_u)+11);
+            strcpy(file_name_server, "server_dir/");//拼接 file_name_server="server_dir/"
+            strcat(file_name_server,file_name_u);//拼接 file_name_server="server_dir/aa.txt"
+            printf("%s\n",file_name_server);
+            FILE *fr = fopen(file_name_server, "a");
+            printf("upload filename:%s\n",file_name_u);    
+            if(fr == NULL)
+			    printf("File %s Cannot be opened file on server.\n", file_name_u);             
+            else
+            {
+            write(fd,prepare_recv,strlen(prepare_recv));
+            bzero(data_recv, BUFFER_LENGTH); 
+			int fr_block_sz = 0;
+			while((fr_block_sz = recv(fd, data_recv, BUFFER_LENGTH, 0)))//could it be sockfd?
+			    {
+			        if(fr_block_sz < 0)
+			        {
+			            printf("Error receiving file from client to server.\n");
+			        }
+			        int write_sz = fwrite(data_recv, sizeof(char), fr_block_sz, fr);
+			        if(write_sz < fr_block_sz)
+			        {
+			            printf("File write failed on server.\n");
+			        }
+					else if(fr_block_sz)
+					{
+						break;
+					}
+			        bzero(data_recv, BUFFER_LENGTH); 
+			    }
+			printf("Ok received from client!\n");
+			fclose(fr);
+            }
+            
+           
             continue;
             /* code */
         }else if (strstr(data_recv,"TrfD")!=NULL)
@@ -130,6 +176,7 @@ static void Data_handle(void * sock_fd)
                 closedir(d);
                 write(fd,file_names,strlen(file_names));
             }
+            bzero(file_names, 1000); 
             continue;
             /* code */
         }else if (strstr(data_recv,"ListU")!=NULL)
