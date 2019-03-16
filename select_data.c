@@ -2,17 +2,19 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 
-static int callback(void *data, int argc, char **argv, char **azColName){
+int select();
+static int callback_select(void *data, int argc, char **argv, char **azColName){
    int i;
    fprintf(stderr, "%s: ", (const char*)data);
    for(i=0; i<argc; i++){
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+      printf("\n");
+      printf("%s\n", azColName[i]);
+      printf("%s\n", argv[i]);
    }
-   printf("\n");
    return 0;
 }
 
-int main(int argc, char* argv[])
+int select()
 {
    sqlite3 *db;
    char *zErrMsg = 0;
@@ -30,10 +32,10 @@ int main(int argc, char* argv[])
    }
 
    /* Create SQL statement */
-   sql = "SELECT * from COMPANY where id = 2";
+   sql = "SELECT * from users";
 
    /* Execute SQL statement */
-   rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
+   rc = sqlite3_exec(db, sql, callback_select, (void*)data, &zErrMsg);
    if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
@@ -41,5 +43,11 @@ int main(int argc, char* argv[])
       fprintf(stdout, "Operation done successfully\n");
    }
    sqlite3_close(db);
+   return 0;
+}
+
+int main(int argc, char const *argv[])
+{
+   select();
    return 0;
 }
