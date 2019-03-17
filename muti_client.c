@@ -7,10 +7,61 @@
 #include<assert.h>          //Func :assert
 #include<string.h>          //Func :memset
 #include<unistd.h>          //Func :close,write,read
+#include <sqlite3.h>
 #define SOCK_PORT 9988
 #define BUFFER_LENGTH 1024
 
-int main()
+int login_flag =0;
+char username[10];
+char password[10];
+
+int select_user();
+int client_socket();
+static int callback_select(void *data, int argc, char **argv, char **azColName){
+    if(strstr(argv[0],username)!=NULL)
+   {
+      if (strstr(argv[1],password)!=NULL) 
+      {
+         login_flag = 1;
+      }      
+   }
+   return 0;
+}
+
+int select_user()
+{
+   sqlite3 *db;
+   char *zErrMsg = 0;
+   int rc;
+   char *sql;
+   const char* data = "Callback function called";
+
+   /* Open database */
+   rc = sqlite3_open("test.db", &db);
+   if( rc ){
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      exit(0);
+   }else{
+      fprintf(stderr, "Opened database successfully\n");
+   }
+
+   /* Create SQL statement */
+   sql = "SELECT * from users";
+
+   /* Execute SQL statement */
+   rc = sqlite3_exec(db, sql, callback_select, (void*)data, &zErrMsg);
+   if( rc != SQLITE_OK ){
+      fprintf(stderr, "SQL error: %s\n", zErrMsg);
+      sqlite3_free(zErrMsg);
+   }else{
+      fprintf(stdout, "Operation done successfully\n");
+   }
+   sqlite3_close(db);
+   return 0;
+}
+
+
+int client_socket()
 {
     int sockfd;
     int tempfd;
@@ -19,6 +70,7 @@ int main()
     char data_recv[BUFFER_LENGTH];
     memset(data_send,0,BUFFER_LENGTH);
     memset(data_recv,0,BUFFER_LENGTH);
+
 
     sockfd = socket(AF_INET,SOCK_STREAM,0);       //ipv4,TCP
     if(sockfd == -1)
@@ -184,3 +236,28 @@ int main()
     return 0;
 }
 
+
+
+int main(int argc, char const *argv[])
+{   
+    while(1){
+      printf("Please login\n");
+      printf("please input username:");
+      gets(username);
+      printf("\nplease input password:");
+      gets(password);
+      select_user();
+      if (login_flag==1) {
+         printf("login sucess\n");
+         client_socket();
+         break;
+      }else
+      {
+         printf("username or password worong!\n");
+         continue;
+      }
+   }
+
+  
+    return 0;
+}

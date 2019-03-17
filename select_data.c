@@ -2,14 +2,32 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 
+int login_flag = 0;
+char username[10];
+char password[10];
 int select();
 static int callback_select(void *data, int argc, char **argv, char **azColName){
-   int i;
-   fprintf(stderr, "%s: ", (const char*)data);
-   for(i=0; i<argc; i++){
-      printf("\n");
-      printf("%s\n", azColName[i]);
-      printf("%s\n", argv[i]);
+   // int i;
+   // fprintf(stderr, "%s: ", (const char*)data);
+   // for(i=0; i<argc; i++)
+   // {
+   //    if(strstr(azColName[i],"username")!=NULL){
+   //       printf("username is :%s", argv[i]);
+
+   //    }
+      
+   //    // printf("\n");
+   //    // printf("%d\n",i);
+   //    // printf("%s\n", azColName[i]);
+   //    // printf("%s\n", argv[i]);
+   // }
+   if(strstr(argv[0],username)!=NULL)
+   {
+      if (strstr(argv[1],password)!=NULL) {
+         /* code */
+        
+         login_flag = 1;
+      }      
    }
    return 0;
 }
@@ -46,8 +64,38 @@ int select()
    return 0;
 }
 
-int main(int argc, char const *argv[])
-{
-   select();
+int main()
+{  
+   // char username[10];
+   // char password[10];
+   while(1){
+      printf("please input username:");
+      gets(username);
+      printf("\nplease input password:");
+      gets(password);
+      select();
+      if (login_flag==1) {
+         printf("login sucess\n");
+         break;
+      }else
+      {
+         printf("username or password worong!\n");
+         continue;
+      }
+   }
+
+   printf("ok!!!\n");
+   // printf("\nusername is %s",username);
+   // printf("\npassword is %s\n",password);
+   
+   
+   // select();
+   // if(login_flag==1){  printf("login sucess!\n");}
+   // else
+   // {
+   //     printf("login error!\n");
+   // }
+   
+  
    return 0;
 }
