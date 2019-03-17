@@ -5,30 +5,22 @@
 int login_flag = 0;
 char username[10];
 char password[10];
+char all_users[1000];
 int select();
 static int callback_select(void *data, int argc, char **argv, char **azColName){
-   // int i;
-   // fprintf(stderr, "%s: ", (const char*)data);
-   // for(i=0; i<argc; i++)
-   // {
-   //    if(strstr(azColName[i],"username")!=NULL){
-   //       printf("username is :%s", argv[i]);
+   
 
-   //    }
-      
-   //    // printf("\n");
-   //    // printf("%d\n",i);
-   //    // printf("%s\n", azColName[i]);
-   //    // printf("%s\n", argv[i]);
-   // }
    if(strstr(argv[0],username)!=NULL)
    {
       if (strstr(argv[1],password)!=NULL) {
          /* code */
-        
          login_flag = 1;
       }      
    }
+
+   strcat(all_users, "\n");
+   strcat(all_users, argv[1]);
+   // printf("%s\n",all_users);
    return 0;
 }
 
@@ -68,6 +60,7 @@ int main()
 {  
    // char username[10];
    // char password[10];
+   strcpy (all_users,"All Users:");
    while(1){
       printf("please input username:");
       gets(username);
@@ -80,22 +73,13 @@ int main()
       }else
       {
          printf("username or password worong!\n");
+         memset(all_users,0,1000);
          continue;
       }
    }
 
    printf("ok!!!\n");
-   // printf("\nusername is %s",username);
-   // printf("\npassword is %s\n",password);
-   
-   
-   // select();
-   // if(login_flag==1){  printf("login sucess!\n");}
-   // else
-   // {
-   //     printf("login error!\n");
-   // }
-   
+   printf("%s",all_users);
   
    return 0;
 }

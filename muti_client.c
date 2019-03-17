@@ -14,6 +14,7 @@
 int login_flag =0;
 char username[10];
 char password[10];
+char all_users[1000];
 
 int select_user();
 int client_socket();
@@ -25,6 +26,8 @@ static int callback_select(void *data, int argc, char **argv, char **azColName){
          login_flag = 1;
       }      
    }
+   strcat(all_users, "\n");
+   strcat(all_users, argv[1]);
    return 0;
 }
 
@@ -42,7 +45,8 @@ int select_user()
       fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
       exit(0);
    }else{
-      fprintf(stderr, "Opened database successfully\n");
+    //   fprintf(stderr, "Opened database successfully\n");
+    int j =0;
    }
 
    /* Create SQL statement */
@@ -54,7 +58,8 @@ int select_user()
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
    }else{
-      fprintf(stdout, "Operation done successfully\n");
+    //   fprintf(stdout, "Operation done successfully\n");
+    int i =0;
    }
    sqlite3_close(db);
    return 0;
@@ -188,6 +193,7 @@ int client_socket()
         {  
             /* code */
             printf("Capture listU \n");
+            printf("%s",all_users);
             continue;
         }else if (strstr(data_send,ListF)!=NULL)
         {
@@ -254,6 +260,7 @@ int main(int argc, char const *argv[])
       }else
       {
          printf("username or password worong!\n");
+         memset(all_users,0,1000);
          continue;
       }
    }
